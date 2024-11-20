@@ -1,0 +1,195 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+
+metadata:
+  name: generic-seed
+  title: Create wizard use cases
+  description: Use this template to create actual wizard use case templates
+  namespace: default
+  tags:
+    - aap-operations
+    - intermediate
+spec:
+  owner: team-a-1
+  type: service
+
+  parameters:
+    - title: Project data
+      description: Provide project data
+      required:
+        - token
+        - organization
+        - scmUrl
+      properties:
+        token:
+          title: Token
+          type: string
+          description: Oauth2 token
+          ui:field: AAPTokenField
+          ui:backstage:
+            review:
+              show: false
+        organization:
+          title: Organization
+          description: Select organization
+          resource: organizations
+          ui:field: AAPResourcePicker
+        scmUrl:
+          title: Source control URL
+          type: string
+          ui:help: 'Source control URL: gitSourceControlUrlHelp'
+          ui:options:
+            rows: 5
+          default: https://github.com/justinc1/seedseed
+        scmBranch:
+          title: Source control branch/tag/commit
+          type: string
+          ui:options:
+            rows: 5
+          default: portal_mvp
+          ui:help: 'Branch to checkout. In addition to branches, you can input tags, commit hashes, and arbitrary refs. Some commit hashes and refs may not be available unless you also provide a custom refspec.'
+    - title: Template data
+      description: Provide template data
+      required:
+        - token
+        - useCases
+        - playbook
+        - controllerHostName
+        - controllerUserName
+        - controllerPassword
+      properties:
+        token:
+          title: Token
+          type: string
+          description: Oauth2 token
+          ui:field: AAPTokenField
+          ui:backstage:
+            review:
+              show: false
+        useCases:
+          title: Use cases
+          type: array
+          items:
+            type: object
+            enum:
+              - name: rhel
+                url: https://github.com/justinc1/experience_demo
+                version: feature-service-aae
+              - name: network
+                url: https://github.com/rohitthakur2590/network.backup
+                version: main
+            enumNames:
+              - Rhel
+              - Network
+          uniqueItems: true
+          ui:widget: checkboxes
+        playbook:
+          title: Playbook
+          description: Select playbook
+          type: string
+          ui:options:
+            rows: 5
+          default: seed_portal_content.yml
+        controllerHostName:
+          title: Controller hostname
+          type: string
+          ui:options:
+            rows: 5
+          default: https://10.44.17.180:8443
+        controllerUserName:
+          title: Controller username
+          type: string
+          ui:options:
+            rows: 5
+          default: admin
+        controllerPassword:
+          title: Controller password
+          type: string
+          ui:field: Secret
+          ui:options:
+            rows: 5
+          default: adminpc
+        controllerValidateCerts:
+          title: Controller validate certs
+          type: boolean
+          default: false
+  steps:
+     - id: create-project
+       name: Create project
+       action: rhaap:create-project
+       input:
+         token: ${{ parameters.token }}
+         deleteIfExist: true
+         values:
+            projectName: 'RH AAP Demo Seed Job Template Project'
+            projectDescription: 'RH AAP Demo Seed Job Template Project'
+            organization: ${{ parameters.organization | resourceIdFilter}}
+            scmUrl: ${{ parameters.scmUrl }}
+            scmBranch: ${{ parameters.scmBranch }}
+            scmUpdateOnLaunch: true
+     - id: create-ee
+       name: Create execution environment
+       action: rhaap:create-execution-environment
+       input:
+         token: ${{ parameters.token }}
+         deleteIfExist: true
+         values:
+           environmentName: 'RH AAP Demo Seed Job Template execution environment'
+           organization: ${{ parameters.organization | resourceIdFilter}}
+           image: 'quay.io/ansible-product-demos/apd-ee-25'
+     - id: create-template
+       name: Create job template
+       action: rhaap:create-job-template
+       input:
+         token: ${{ parameters.token }}
+         deleteIfExist: true
+         values:
+           templateName: 'RH AAP Demo Seed Job Template'
+           templateDescription: 'RH AAP Demo Seed Job Template'
+           project: ${{steps['create-project'].output.project.id }}
+           organization: ${{ parameters.organization | resourceIdFilter}}
+           jobInventory: 1
+           playbook: ${{ parameters.playbook }}
+           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
+           extraVariables:
+             controller_hostname: ${{ parameters.controllerHostName }}
+             controller_username: ${{ parameters.controllerUserName }}
+             controller_password: ${{ secrets.controllerPassword }}
+             controller_validate_certs: ${{ parameters.controllerValidateCerts }}
+             usecases: ${{ parameters.useCases }}
+             seed_usecase: ${{ parameters.useCases | useCaseNameFilter }}
+             organization_name: ${{ parameters.organization | resourceNameFilter}}
+     - id: launch-job
+       name: Launch job template
+       action: rhaap:launch-job-template
+       input:
+         token: ${{ parameters.token }}
+         values:
+           templateID: ${{steps['create-template'].output.template.id }}
+     - id: clean-up
+       name: Clean up
+       action: rhaap:clean-up
+       input:
+         token: ${{ parameters.token }}
+         values:
+           project: ${{steps['create-project'].output.project.id }}
+           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
+           template: ${{steps['create-template'].output.template.id }}
+     - id: create-showcase
+       name: Create showcases
+       action: rhaap:create-show-cases
+       input:
+         token: ${{ parameters.token }}
+         values:
+           organization: ${{ parameters.organization | resourceIdFilter}}
+           templateNames:
+             - RHEL / Configure Services
+             - RHEL / Update RHEL Time Servers
+  output:
+    text:
+      - title: 'Job generic seed template executed successfully'
+        content: |
+          **Job ID:** `${{ steps['launch-job'].output.data.id }}`
+    links:
+      - title: View in RH AAP
+        url: ${{ steps['launch-job'].output.data.url }}
