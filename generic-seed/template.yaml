@@ -17,23 +17,8 @@ spec:
     - title: Project data
       description: Provide project data
       required:
-        - token
-        - organization
         - scmUrl
       properties:
-        token:
-          title: Token
-          type: string
-          description: Oauth2 token
-          ui:field: AAPTokenField
-          ui:backstage:
-            review:
-              show: false
-        organization:
-          title: Organization
-          description: Select organization
-          resource: organizations
-          ui:field: AAPResourcePicker
         scmUrl:
           title: Source control URL
           type: string
@@ -51,21 +36,12 @@ spec:
     - title: Template data
       description: Provide template data
       required:
-        - token
         - useCases
         - playbook
         - controllerHostName
         - controllerUserName
         - controllerPassword
       properties:
-        token:
-          title: Token
-          type: string
-          description: Oauth2 token
-          ui:field: AAPTokenField
-          ui:backstage:
-            review:
-              show: false
         useCases:
           title: Use cases
           type: array
@@ -123,7 +99,7 @@ spec:
          values:
             projectName: 'RH AAP Demo Seed Job Template Project'
             projectDescription: 'RH AAP Demo Seed Job Template Project'
-            organization: ${{ parameters.organization | resourceIdFilter}}
+            organization: 1
             scmUrl: ${{ parameters.scmUrl }}
             scmBranch: ${{ parameters.scmBranch }}
             scmUpdateOnLaunch: true
@@ -135,7 +111,7 @@ spec:
          deleteIfExist: true
          values:
            environmentName: 'RH AAP Demo Seed Job Template execution environment'
-           organization: ${{ parameters.organization | resourceIdFilter}}
+           organization: 1
            image: 'quay.io/ansible-product-demos/apd-ee-25'
      - id: create-template
        name: Create job template
@@ -147,7 +123,7 @@ spec:
            templateName: 'RH AAP Demo Seed Job Template'
            templateDescription: 'RH AAP Demo Seed Job Template'
            project: ${{steps['create-project'].output.project.id }}
-           organization: ${{ parameters.organization | resourceIdFilter}}
+           organization: 1
            jobInventory: 1
            playbook: ${{ parameters.playbook }}
            executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
@@ -158,7 +134,7 @@ spec:
              controller_validate_certs: ${{ parameters.controllerValidateCerts }}
              usecases: ${{ parameters.useCases }}
              seed_usecase: ${{ parameters.useCases | useCaseNameFilter }}
-             organization_name: ${{ parameters.organization | resourceNameFilter}}
+             organization_name: Default
      - id: launch-job
        name: Launch job template
        action: rhaap:launch-job-template
@@ -181,7 +157,7 @@ spec:
        input:
          token: ${{ parameters.token }}
          values:
-           organization: ${{ parameters.organization | resourceIdFilter}}
+           organization: 1
            templateNames:
              - RHEL / Configure Services
              - RHEL / Update RHEL Time Servers
