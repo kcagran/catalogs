@@ -132,7 +132,7 @@ spec:
             scmBranch: ${{ parameters.scmBranch }}
             scmUpdateOnLaunch: true
      - id: create-ee
-       name: Create execution environment
+       name: Create execution environment 11
        action: rhaap:create-execution-environment
        input:
          token: ${{ parameters.token }}
@@ -141,6 +141,7 @@ spec:
            environmentName: 'RH AAP Demo Seed Job Template execution environment'
            organization: ${{ parameters.organization | resourceIdFilter}}
            image: 'quay.io/justinc1_github/apd-ee-25-seedseed:latest'
+           pull: always
      - id: create-template
        name: Create job template
        action: rhaap:create-job-template
