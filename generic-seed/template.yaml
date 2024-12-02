@@ -170,15 +170,15 @@ spec:
          token: ${{ parameters.token }}
          values:
            templateID: ${{steps['create-template'].output.template.id }}
-     - id: clean-up
-       name: Clean up
-       action: rhaap:clean-up
-       input:
-         token: ${{ parameters.token }}
-         values:
-           project: ${{steps['create-project'].output.project.id }}
-           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
-           template: ${{steps['create-template'].output.template.id }}
+    #  - id: clean-up
+    #    name: Clean up
+    #    action: rhaap:clean-up
+    #    input:
+    #      token: ${{ parameters.token }}
+    #      values:
+    #        project: ${{steps['create-project'].output.project.id }}
+    #        executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
+    #        template: ${{steps['create-template'].output.template.id }}
      - id: create-showcase
        name: Create showcases
        action: rhaap:create-show-cases
