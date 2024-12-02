@@ -54,9 +54,9 @@ spec:
         - token
         - useCases
         - playbook
-        - controllerHostName
-        - controllerUserName
-        - controllerPassword
+        - aapHostName
+        - aapUserName
+        - aapPassword
       properties:
         token:
           title: Token
@@ -94,27 +94,27 @@ spec:
           ui:options:
             rows: 5
           default: seed_portal_content.yml
-        controllerHostName:
-          title: Controller hostname
+        aapHostName:
+          title: AAP URL
           type: string
           ui:options:
             rows: 5
-          default: https://10.44.17.180:8443
-        controllerUserName:
-          title: Controller username
+          # default: https://10.44.17.180
+        aapUserName:
+          title: AAP username
           type: string
           ui:options:
             rows: 5
           default: admin
-        controllerPassword:
-          title: Controller password
+        aapPassword:
+          title: AAP password
           type: string
           ui:field: Secret
           ui:options:
             rows: 5
-          default: adminpc
-        controllerValidateCerts:
-          title: Controller validate certs
+          # default: adminpg
+        aapValidateCerts:
+          title: AAP validate certs
           type: boolean
           default: false
   steps:
@@ -156,10 +156,10 @@ spec:
            playbook: ${{ parameters.playbook }}
            executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
            extraVariables:
-             controller_hostname: ${{ parameters.controllerHostName }}
-             controller_username: ${{ parameters.controllerUserName }}
-             controller_password: ${{ secrets.controllerPassword }}
-             controller_validate_certs: ${{ parameters.controllerValidateCerts }}
+             aap_hostname: ${{ parameters.aapHostName }}
+             aap_username: ${{ parameters.aapUserName }}
+             aap_password: ${{ secrets.aapPassword }}
+             aap_validate_certs: ${{ parameters.controllerValidateCerts }}
              usecases: ${{ parameters.useCases }}
              seed_usecase: ${{ parameters.useCases | useCaseNameFilter }}
              organization_name: ${{ parameters.organization | resourceNameFilter}}
