@@ -132,7 +132,7 @@ spec:
             scmBranch: ${{ parameters.scmBranch }}
             scmUpdateOnLaunch: true
      - id: create-ee
-       name: Create execution environment 11
+       name: Create execution environment
        action: rhaap:create-execution-environment
        input:
          token: ${{ parameters.token }}
