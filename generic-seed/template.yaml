@@ -10,7 +10,7 @@ metadata:
     - aap-operations
     - intermediate
 spec:
-  owner: team-a-1
+  owner: RedHat
   type: service
 
   parameters:
@@ -34,6 +34,17 @@ spec:
           description: Select organization
           resource: organizations
           ui:field: AAPResourcePicker
+          default:
+            id: 1
+            name: Default
+        jobInventory:
+          title: Inventory
+          description: Select inventory
+          resource: inventories
+          ui:field: AAPResourcePicker
+          default:
+            id: 1
+            name: Default
         scmUrl:
           title: Source control URL
           type: string
@@ -79,8 +90,8 @@ spec:
                 url: https://github.com/rohitthakur2590/network.backup
                 version: main
               - name: windows
-                url: https://github.com/justinc1/infra.windows_ops
-                version: fix-ee
+                url: https://github.com/redhat-cop/infra.windows_ops
+                version: main
             enumNames:
               - Rhel
               - Network
@@ -127,7 +138,7 @@ spec:
          values:
             projectName: 'RH AAP Demo Seed Job Template Project'
             projectDescription: 'RH AAP Demo Seed Job Template Project'
-            organization: ${{ parameters.organization | resourceIdFilter}}
+            organization: ${{ parameters.organization }}
             scmUrl: ${{ parameters.scmUrl }}
             scmBranch: ${{ parameters.scmBranch }}
             scmUpdateOnLaunch: true
@@ -139,7 +150,7 @@ spec:
          deleteIfExist: true
          values:
            environmentName: 'RH AAP Demo Seed Job Template execution environment'
-           organization: ${{ parameters.organization | resourceIdFilter}}
+           organization: ${{ parameters.organization }}
            image: 'quay.io/justinc1_github/apd-ee-25-seedseed:latest'
            pull: always
      - id: create-template
@@ -151,11 +162,11 @@ spec:
          values:
            templateName: 'RH AAP Demo Seed Job Template'
            templateDescription: 'RH AAP Demo Seed Job Template'
-           project: ${{steps['create-project'].output.project.id }}
-           organization: ${{ parameters.organization | resourceIdFilter}}
-           jobInventory: 1
+           project: ${{steps['create-project'].output.project }}
+           organization: ${{ parameters.organization }}
+           jobInventory: ${{ parameters.jobInventory }}
            playbook: ${{ parameters.playbook }}
-           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
+           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment }}
            extraVariables:
              aap_hostname: ${{ parameters.aapHostName }}
              aap_username: ${{ parameters.aapUserName }}
@@ -163,7 +174,7 @@ spec:
              aap_validate_certs: ${{ parameters.aapValidateCerts }}
              usecases: ${{ parameters.useCases }}
              seed_usecase: ${{ parameters.useCases | useCaseNameFilter }}
-             organization_name: ${{ parameters.organization | resourceNameFilter}}
+             organization_name: ${{ parameters.organization | resourceFilter('name')}}
      - id: launch-job
        name: Launch job template
        action: rhaap:launch-job-template
@@ -177,16 +188,16 @@ spec:
        input:
          token: ${{ parameters.token }}
          values:
-           project: ${{steps['create-project'].output.project.id }}
-           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment.id }}
-           template: ${{steps['create-template'].output.template.id }}
+           project: ${{steps['create-project'].output.project }}
+           executionEnvironment: ${{steps['create-ee'].output.executionEnvironment }}
+           template: ${{steps['create-template'].output.template }}
      - id: create-showcase
        name: Create showcases
        action: rhaap:create-show-cases
        input:
          token: ${{ parameters.token }}
          values:
-           organization: ${{ parameters.organization | resourceIdFilter}}
+           organization: ${{ parameters.organization }}
            templateNames:
              - RHEL / Configure Services
              - RHEL / Update RHEL Time Servers
