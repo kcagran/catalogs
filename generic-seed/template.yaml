@@ -160,7 +160,7 @@ spec:
              aap_hostname: ${{ parameters.aapHostName }}
              aap_username: ${{ parameters.aapUserName }}
              aap_password: ${{ secrets.aapPassword }}
-             aap_validate_certs: ${{ parameters.controllerValidateCerts }}
+             aap_validate_certs: ${{ parameters.aapValidateCerts }}
              usecases: ${{ parameters.useCases }}
              seed_usecase: ${{ parameters.useCases | useCaseNameFilter }}
              organization_name: ${{ parameters.organization | resourceNameFilter}}
