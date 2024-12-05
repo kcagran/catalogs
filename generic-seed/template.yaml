@@ -84,7 +84,7 @@ spec:
             type: object
             enum:
               - name: rhel
-                url: https://github.com/justinc1/experience_demo
+                url: https://github.com/kcagran/experience_demo
                 version: feature-service-aae
               - name: network
                 url: https://github.com/rohitthakur2590/network.backup
@@ -198,13 +198,7 @@ spec:
          token: ${{ parameters.token }}
          values:
            organization: ${{ parameters.organization }}
-           templateNames:
-             - RHEL / Configure Services
-             - RHEL / Update RHEL Time Servers
-             - Network Operations / Create Full Network Backup
-             - Network Operations / Restore Config
-             - Windows Operations / Create IIS
-             - Windows Operations / Delete IIS
+           useCases: ${{ parameters.useCases }}
   output:
     text:
       - title: 'Job generic seed template executed successfully'
