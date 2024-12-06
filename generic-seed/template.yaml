@@ -66,8 +66,6 @@ spec:
         - useCases
         - playbook
         - aapHostName
-        - aapUserName
-        - aapPassword
       properties:
         token:
           title: Token
@@ -110,20 +108,6 @@ spec:
           type: string
           ui:options:
             rows: 5
-          # default: https://10.44.17.180
-        aapUserName:
-          title: AAP username
-          type: string
-          ui:options:
-            rows: 5
-          default: admin
-        aapPassword:
-          title: AAP password
-          type: string
-          ui:field: Secret
-          ui:options:
-            rows: 5
-          # default: adminpg
         aapValidateCerts:
           title: AAP validate certs
           type: boolean
@@ -169,8 +153,7 @@ spec:
            executionEnvironment: ${{steps['create-ee'].output.executionEnvironment }}
            extraVariables:
              aap_hostname: ${{ parameters.aapHostName }}
-             aap_username: ${{ parameters.aapUserName }}
-             aap_password: ${{ secrets.aapPassword }}
+             aap_token: ${{ parameters.token }}
              aap_validate_certs: ${{ parameters.aapValidateCerts }}
              usecases: ${{ parameters.useCases }}
              seed_usecase: ${{ parameters.useCases | useCaseNameFilter }}
@@ -181,7 +164,7 @@ spec:
        input:
          token: ${{ parameters.token }}
          values:
-           templateID: ${{steps['create-template'].output.template.id }}
+           template: ${{steps['create-template'].output.template}}
      - id: clean-up
        name: Clean up
        action: rhaap:clean-up
