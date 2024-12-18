@@ -78,6 +78,7 @@ spec:
         useCases:
           title: Use cases
           type: array
+          minItems: 1
           items:
             type: object
             enum:
@@ -116,6 +117,9 @@ spec:
           title: AAP validate certs
           type: boolean
           default: false
+      errorMessage:
+        properties:
+          useCases: 'Select at least one use case.'
   steps:
      - id: create-project
        name: Create project
